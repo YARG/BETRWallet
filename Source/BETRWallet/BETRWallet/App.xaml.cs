@@ -1,32 +1,66 @@
-using System;
-using Xamarin.Forms;
-using Xamarin.Forms.Xaml;
 
-[assembly: XamlCompilation(XamlCompilationOptions.Compile)]
+
+
+using System;
+using Prism;
+using Prism.Ioc;
+using Prism.Modularity;
+
+using BETRWallet.ViewModels;
+using BETRWallet.Views;
+using Xamarin.Forms;
+using Prism.DryIoc;
+using BETRWallet.Interfaces;
+using AndroidSpecific = Xamarin.Forms.PlatformConfiguration.AndroidSpecific;
+using Xamarin.Forms.Xaml;
+using System.Reflection;
+using BETRWallet.Services;
+using Prism.Navigation;
+
 namespace BETRWallet
 {
-    public partial class App : Application
+    [XamlCompilation (XamlCompilationOptions.Compile)]
+    public partial class App : PrismApplication
     {
-        public App()
-        {
-            InitializeComponent();
+        public App(IPlatformInitializer initializer = null) : base(initializer) { 
 
-            MainPage = new MainPage();
+
+            AndroidSpecific.Application.SetWindowSoftInputModeAdjust(this, AndroidSpecific.WindowSoftInputModeAdjust.Resize); 
+
         }
 
-        protected override void OnStart()
+
+
+
+        protected  override void OnInitialized()
         {
-            // Handle when your app starts
+            InitializeComponent();    // splash
+
+            //  InitLocalization();
+
+            NavigationService.NavigateAsync($"app:////{nameof(SplashPage)}");
+
+
+            //  new System.Uri($"/NavigationPage/{nameof(SplashPage)}", UriKind.Relative));
+            //NavigationService.NavigateAsync(new System.Uri("/NavigationPage/CustomTabbedPage?selectedTab=HomePage", System.UriKind.Absolute));
         }
 
-        protected override void OnSleep()
+ 
+
+        protected override void RegisterTypes(IContainerRegistry containerRegistry)
         {
-            // Handle when your app sleeps
+            
+
+            // Register the repository as a singleton
+            containerRegistry.RegisterSingleton<IRepositoryService, RepositoryService>();
+
+            containerRegistry.RegisterForNavigation<NavigationPage>();
+ 
+            containerRegistry.RegisterForNavigation<SplashPage, SplashPageViewModel>();
+
+      
+
         }
 
-        protected override void OnResume()
-        {
-            // Handle when your app resumes
-        }
     }
 }
